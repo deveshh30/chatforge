@@ -4,9 +4,13 @@ import bcrypt from "bcryptjs";
 import {generateToken} from "../lib/utils.ts"
 
 export const signUp = async (req: Request, res: Response) => {
-    const {fullName , email , password , userName , ProfileImage } =req.body;
+    const {fullName , email , password , userName  } = req.body;
     
     try {
+        if (!fullName || !email || !password || !userName) {
+            return res.status(400).json({message: "All fields are required"});
+        }
+
         if (password.length < 6) {
             return res.status(400)
             .json({message : "password must be atleast 6 character"})
@@ -25,7 +29,7 @@ export const signUp = async (req: Request, res: Response) => {
             email,
             password : hashedPass,
             userName,
-            ProfileImage,
+            // ProfileImage,
         })
 
         if(newUser) {
@@ -37,7 +41,7 @@ export const signUp = async (req: Request, res: Response) => {
                 _id : newUser._id,
                 fullName : newUser.fullName,
                 email : newUser.email,
-                ProfileImage : newUser.ProfileImage,
+                // ProfileImage : newUser.ProfileImage,
             });
         } else {
             res.status(400)
@@ -46,7 +50,7 @@ export const signUp = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log("error in signup controller" , error.message);
         res.status(500)
-        .json({message : "error in registering the user"})
+        .json({error})
         
     }
 }
@@ -57,6 +61,10 @@ export const logIn = async (req: Request, res: Response) => {
 
         if (!userName && !email) {
             return res.status(400).json({ message: "username or email is required" });
+        }
+
+        if (!password) {
+            return res.status(400).json({ message: "password is required" });
         }
 
         const user = await User.findOne({
@@ -80,12 +88,12 @@ export const logIn = async (req: Request, res: Response) => {
             fullName: user.fullName,
             email: user.email,
             userName: user.userName,
-            ProfileImage: user.ProfileImage,
+            // ProfileImage: user.ProfileImage,
             message: "user logged in successfully"
         });
     } catch (error) {
         console.log("error in login controller", error);
-        res.status(500).json({ message: "error in logging in" });
+        res.status(500).json({ error });
     }
 };
 
