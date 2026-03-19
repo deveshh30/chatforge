@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { checkUserAuthenticated } from "../store/checkUserAuthentication";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
@@ -10,11 +10,11 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
-  const { login, isLoggingIn } = checkUserAuthenticated();
+  const { logIn, isLoggingIn } = checkUserAuthenticated();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(formData);
+    await logIn(formData);
   };
 
   return (

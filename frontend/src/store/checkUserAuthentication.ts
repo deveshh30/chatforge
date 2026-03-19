@@ -9,6 +9,22 @@ interface SignUpPayload {
     password: string;
 }
 
+interface UpdateProfilePayload {
+  profileImage: string;
+}
+
+type LogInPayload =
+  | {
+      email: string;
+      password: string;
+      userName?: never;
+    }
+  | {
+      userName: string;
+      password: string;
+      email?: never;
+    };
+
 interface AuthStore {
     authUser: any;
     isSigningUp: boolean;
@@ -17,7 +33,9 @@ interface AuthStore {
     isCheckingAuth: boolean;
     checkAuth: () => Promise<void>;
     signUp: (data: SignUpPayload) => Promise<void>;
-     logOut: () => Promise<void>;
+  logIn: (data: LogInPayload) => Promise<void>;
+  logOut: () => Promise<void>;
+  updateProfile: (data: UpdateProfilePayload) => Promise<void>;
 }
 
 export const checkUserAuthenticated = create<AuthStore>((set) => ({
@@ -44,9 +62,22 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
       set({ authUser: res.data });
       toast.success("Account created successfully");
     } catch (error) {
-      toast.error("hy my is");
+      toast.error((error as any)?.response?.data?.message || "Signup failed");
     } finally {
       set({ isSigningUp: false });
+    }
+  },
+
+  logIn : async(data: LogInPayload) => {
+    set({ isLoggingIn: true });
+    try {
+      const res = await axiosInstance.post("/auth/logIn", data);
+      set({authUser: res.data});
+      toast.success("user logged in successfully");
+    } catch (error) {
+      toast.error((error as any)?.response?.data?.message || "Login failed");
+    } finally {
+      set({ isLoggingIn: false });
     }
   },
 
@@ -56,19 +87,18 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
         set({ authUser: null });
         toast.success("user logged out successfully")
         } catch (error) {
-        toast.error((error as any).response.data.message);
+        toast.error((error as any)?.response?.data?.message || " upload failed"); 
     }
   },
 
-  updateProfile : async(data) => {
+  updateProfile : async(data: UpdateProfilePayload) => {
     set({isUpdatingProfile : true});
     try {
       const res = await axiosInstance.put("/auth/update-profile" , data) ;
-      set({authUser : res.status});
+      set({authUser : res.data});
       toast.success("profile picture uploaded successfully")
     } catch (error) {
-      console.log(error);
-      toast.error("failed to update the profile picture")
+      toast.error((error as any)?.response?.data?.message || "Upload failed");
     } finally{
       set({isUpdatingProfile:false})
     }

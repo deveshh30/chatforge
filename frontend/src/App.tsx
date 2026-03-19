@@ -5,10 +5,10 @@ import Homepage from './pages/Homepage'
 import SignUpPage from './pages/Signinpage'
 import Loginpage from './pages/Loginpage'
 import Settingspage from './pages/Settingspage'
-import Profilepage from './pages/Profilepage'
 import { checkUserAuthenticated } from './store/checkUserAuthentication'
 import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
+import Profilepage from './pages/Profilepage'
 
 
 function App() {
@@ -33,7 +33,7 @@ function App() {
         <Route path="/signup" element={!authUser ? <SignUpPage/> : <Navigate to="/" />}  />
         <Route path="/login" element={!authUser ? <Loginpage/> : <Navigate to="/" />}/>
         <Route path="/settings" element={<Settingspage/>}  />
-        <Route path="/proile" element={ authUser? <Profilepage/> : <Navigate to="/logIn"/>}  />
+        <Route path="/profile" element={ authUser? <Profilepage/> : <Navigate to="/login"/>}  />
       </Routes>
 
       <Toaster/> 

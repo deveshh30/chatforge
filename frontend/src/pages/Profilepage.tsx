@@ -1,31 +1,32 @@
+import { useState, type ChangeEvent } from "react";
 import { Camera, Mail, User } from "lucide-react";
 import { checkUserAuthenticated } from "../store/checkUserAuthentication";
 
 const Profilepage = () => {
-  
-  const{checkUserAuthenticated , isUpdatingProfile , updateProfile} = useAuthStore();
-  const [selectedimage, setSelectedimage] = useState(null);
+  const { authUser, isUpdatingProfile, updateProfile } = checkUserAuthenticated();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleUploadedImage = async(e) => {
-    const file = e.target.files[0];
-    if(!file) return;
+  const handleUploadedImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     const reader = new FileReader();
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(file);
 
     reader.onload = async () => {
-      const base64Image = reader.result;    
-      setSelectedimage(base64Image);
-      await updateProfile({profileImage: base64Image}) ;
-    }
+      const base64Image = reader.result as string;
+      setSelectedImage(base64Image);
+      await updateProfile({ profileImage: base64Image });
+    };
 
     // Base64 format images are a way to embed image data 
     // directly into text-based formats like HTML, CSS, or
     //  JSON by converting the binary image data into a string 
     //  of ASCII characters.
-  }
+  };
 
-  <div className="h-screen pt-20">
+  return (
+    <div className="h-screen pt-20">
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
@@ -38,7 +39,7 @@ const Profilepage = () => {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
-                src={selectedImg || checkUserAuthenticated.profilePic || "/preact-js-icon.jpg"}
+                src={selectedImage || authUser?.profileImage || "/preact-js-icon.jpg"}
                 alt="Profile"
                 className="size-32 rounded-full object-cover border-4 "
               />
@@ -74,7 +75,7 @@ const Profilepage = () => {
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{checkUserAuthenticated?.fullName}</p>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullName}</p>
             </div>
 
             <div className="space-y-1.5">
@@ -82,7 +83,7 @@ const Profilepage = () => {
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{checkUserAuthenticated?.email}</p>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
             </div>
           </div>
 
@@ -91,7 +92,7 @@ const Profilepage = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
-                <span>{checkUserAuthenticated.createdAt?.split("T")[0]}</span>
+                <span>{authUser?.createdAt?.split("T")[0]}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
@@ -102,6 +103,6 @@ const Profilepage = () => {
         </div>
       </div>
     </div>
-  
+  );
 };
 export default Profilepage;
