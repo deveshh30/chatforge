@@ -9,10 +9,12 @@ import { checkUserAuthenticated } from './store/checkUserAuthentication'
 import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Profilepage from './pages/Profilepage'
+import { useTheme } from './store/useTheme'
 
 
 function App() {
-  const { authUser, checkAuth , isCheckingAuth } = checkUserAuthenticated()
+  const { authUser, checkAuth , isCheckingAuth } = checkUserAuthenticated();
+  const theme =  useTheme();
 
   useEffect(() => {
       checkAuth()
@@ -25,7 +27,7 @@ function App() {
   );
 
   return (
-    <>
+    <div data-theme={theme}>
       <Navbar/>
 
       <Routes>
@@ -37,7 +39,7 @@ function App() {
       </Routes>
 
       <Toaster/> 
-    </>
+    </div>
   )
 }
 
