@@ -2,6 +2,44 @@ import { useState, type ChangeEvent } from "react";
 import { Camera, Mail, User } from "lucide-react";
 import { checkUserAuthenticated } from "../store/checkUserAuthentication";
 
+const readFileAsDataUrl = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Failed to read image"));
+  });
+
+const loadImage = (src: string): Promise<HTMLImageElement> =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Failed to load image"));
+  });
+
+const compressImageToDataUrl = async (file: File): Promise<string> => {
+  const sourceDataUrl = await readFileAsDataUrl(file);
+  const img = await loadImage(sourceDataUrl);
+
+  const maxSize = 1024;
+  const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+  const width = Math.round(img.width * scale);
+  const height = Math.round(img.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Failed to process image");
+  }
+
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", 0.75);
+};
+
 const Profilepage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = checkUserAuthenticated();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -10,19 +48,13 @@ const Profilepage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = async () => {
-      const base64Image = reader.result as string;
-      setSelectedImage(base64Image);
-      await updateProfile({ profileImage: base64Image });
-    };
-
-    // Base64 format images are a way to embed image data 
-    // directly into text-based formats like HTML, CSS, or
-    //  JSON by converting the binary image data into a string 
-    //  of ASCII characters.
+    try {
+      const optimizedImage = await compressImageToDataUrl(file);
+      await updateProfile({ profileImage: optimizedImage });
+      setSelectedImage(optimizedImage);
+    } catch {
+      // If client-side compression fails, avoid crashing the page.
+    }
   };
 
   return (

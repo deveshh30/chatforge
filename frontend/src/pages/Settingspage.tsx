@@ -1,5 +1,4 @@
-
-import { Send } from "lucide-react";
+import { Send, Check } from "lucide-react";
 import { useTheme } from "../store/useTheme"
 import { THEMES } from "../constants";
 
@@ -23,11 +22,16 @@ const Settingspage = () => {
             <button
               key={t}
               className={`
-                group flex flex-col items-center gap-1.5 p-2 rounded-lg transition-colors
-                ${theme === t ? "bg-base-200" : "hover:bg-base-200/50"}
+                group flex flex-col items-center gap-1.5 p-2 rounded-lg transition-colors relative
+                ${theme === t ? "bg-base-200 border-2 border-primary" : "hover:bg-base-200/50 border border-transparent"}
               `}
               onClick={() => setTheme(t)}
             >
+              {theme === t && (
+                <span className="absolute top-1 right-1 text-primary">
+                  <Check size={16} />
+                </span>
+              )}
               <div className="relative h-8 w-full rounded-md overflow-hidden" data-theme={t}>
                 <div className="absolute inset-0 grid grid-cols-4 gap-px p-1">
                   <div className="rounded bg-primary"></div>

@@ -14,11 +14,15 @@ import { useTheme } from './store/useTheme'
 
 function App() {
   const { authUser, checkAuth , isCheckingAuth } = checkUserAuthenticated();
-  const theme =  useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
-      checkAuth()
+    checkAuth()
   }, [checkAuth]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   console.log({ authUser });
 
@@ -27,9 +31,8 @@ function App() {
   );
 
   return (
-    <div data-theme={theme}>
+    <div>
       <Navbar/>
-
       <Routes>
         <Route path="/" element={ authUser? <Homepage/> : <Navigate to="/login"/> }  />
         <Route path="/signup" element={!authUser ? <SignUpPage/> : <Navigate to="/" />}  />
@@ -37,7 +40,6 @@ function App() {
         <Route path="/settings" element={<Settingspage/>}  />
         <Route path="/profile" element={ authUser? <Profilepage/> : <Navigate to="/login"/>}  />
       </Routes>
-
       <Toaster/> 
     </div>
   )
