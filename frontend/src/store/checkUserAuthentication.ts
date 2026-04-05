@@ -1,6 +1,7 @@
 import {create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { io, Socket } from "socket.io-client";
 
 interface SignUpPayload {
     fullName: string;
@@ -27,6 +28,8 @@ type LogInPayload =
 
 interface AuthStore {
     authUser: any;
+    socket: Socket | null;
+    onlineUsers: string[];
     isSigningUp: boolean;
     isLoggingIn: boolean;
     isUpdatingProfile: boolean;
@@ -40,6 +43,8 @@ interface AuthStore {
 
 export const checkUserAuthenticated = create<AuthStore>((set) => ({
     authUser : null,
+    socket: null,
+    onlineUsers: [],
     isSigningUp : false,
     isLoggingIn : false,
     isUpdatingProfile : false,
@@ -49,6 +54,21 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
         try {
             const res = await axiosInstance.get("/auth/check");
             set({ authUser: res.data, isCheckingAuth: false });
+            
+            // Initialize socket connection
+            if (res.data) {
+              const socket = io("http://localhost:3000", {
+                query: {
+                  userId: res.data._id,
+                },
+              });
+              
+              socket.on("getOnlineUsers", (users: string[]) => {
+                set({ onlineUsers: users });
+              });
+              
+              set({ socket });
+            }
         } catch (error) {
             console.log("Not authenticated");
             set({ authUser: null, isCheckingAuth: false });
@@ -74,6 +94,19 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
       const res = await axiosInstance.post("/auth/logIn", data);
       set({authUser: res.data});
       toast.success("user logged in successfully");
+      
+      // Initialize socket connection
+      const socket = io("http://localhost:3000", {
+        query: {
+          userId: res.data._id,
+        },
+      });
+      
+      socket.on("getOnlineUsers", (users: string[]) => {
+        set({ onlineUsers: users });
+      });
+      
+      set({ socket });
     } catch (error) {
       toast.error((error as any)?.response?.data?.message || "Login failed");
     } finally {
@@ -87,7 +120,7 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
         set({ authUser: null });
         toast.success("user logged out successfully")
         } catch (error) {
-        toast.error((error as any)?.response?.data?.message || " upload failed"); 
+        toast.error((error as any)?.response?.data?.message || "Logout failed"); 
     }
   },
 
@@ -104,3 +137,5 @@ export const checkUserAuthenticated = create<AuthStore>((set) => ({
     }
   }
 }))
+
+export const useAuthStore = checkUserAuthenticated;

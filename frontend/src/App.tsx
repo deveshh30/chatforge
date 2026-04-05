@@ -5,7 +5,7 @@ import Homepage from './pages/Homepage'
 import SignUpPage from './pages/Signinpage'
 import Loginpage from './pages/Loginpage'
 import Settingspage from './pages/Settingspage'
-import { checkUserAuthenticated } from './store/checkUserAuthentication'
+import { useAuthStore } from './store/checkUserAuthentication'
 import { useEffect } from 'react'
 import { Toaster } from 'react-hot-toast'
 import Profilepage from './pages/Profilepage'
@@ -13,7 +13,7 @@ import { useTheme } from './store/useTheme'
 
 
 function App() {
-  const { authUser, checkAuth , isCheckingAuth } = checkUserAuthenticated();
+  const { authUser, checkAuth , isCheckingAuth } = useAuthStore();
   const { theme } = useTheme();
 
   useEffect(() => {

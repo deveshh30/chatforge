@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from "react";
 import { Camera, Mail, User } from "lucide-react";
-import { checkUserAuthenticated } from "../store/checkUserAuthentication";
+import { useAuthStore } from "../store/checkUserAuthentication";
 
 const readFileAsDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ const compressImageToDataUrl = async (file: File): Promise<string> => {
 };
 
 const Profilepage = () => {
-  const { authUser, isUpdatingProfile, updateProfile } = checkUserAuthenticated();
+  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleUploadedImage = async (e: ChangeEvent<HTMLInputElement>) => {
